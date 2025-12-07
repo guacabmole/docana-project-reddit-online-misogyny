@@ -2,7 +2,7 @@
 
 Author: *Samuel Givanelli*  
 Course: *Document Analysis (Summer semester 2025, M.Sc. Social and Economic Data Science, University of Konstanz)*  
-
+Dashboard: [Link to the Dashboard](https://reddit-online-misogyny.streamlit.app/)
 ---
 
 ## Abstract

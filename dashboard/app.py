@@ -28,8 +28,8 @@ st.markdown("""
 # Load data
 @st.cache_data
 def load_data():
-    zip_path = "data/data_topics_sentiment.zip"      
-    csv_name = "data_topics_sentiment.csv"         
+    zip_path = "dashboard/data/data_topics_sentiment.zip"      
+    csv_name = "dashboard/data_topics_sentiment.csv"         
 
     with zipfile.ZipFile(zip_path, "r") as z:
         with z.open(csv_name) as f:
@@ -176,7 +176,7 @@ elif view_choice == "Network analysis":
         "of topics/users/subreddits related to online misogyny."
     )
 
-    image_path = "data/output.png"
+    image_path = "dashboard/data/output.png"
 
     try:
         st.image(
@@ -199,9 +199,9 @@ elif view_choice == "BERTopic outputs":
     )
 
     viz_options = {
-        "Topic distribution": "data/topic_distribution.html",
-        "Topic hierarchy": "data/topics_hierarchy.html",
-        "Topics' documents": "data/topics_visualize_documents.html",
+        "Topic distribution": "dashboard/data/topic_distribution.html",
+        "Topic hierarchy": "dashboard/data/topics_hierarchy.html",
+        "Topics' documents": "dashboard/data/topics_visualize_documents.html",
     }
 
     choice = st.selectbox(
@@ -221,7 +221,7 @@ elif view_choice == "BERTopic outputs":
             "Make sure you exported the BERTopic visualization to this path. For example:\n\n"
             "```python\n"
             "fig = topic_model.visualize_topics()\n"
-            "fig.write_html('data/bertopic_topics_overview.html')\n"
+            "fig.write_html('dashboard/data/bertopic_topics_overview.html')\n"
             "```"
         )
     except Exception as e:
