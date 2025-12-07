@@ -1,0 +1,25 @@
+name: docana-reddit-misogyny
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - bertopic==0.17.4
+      - datasets==4.4.1
+      - hdbscan==0.8.40
+      - matplotlib
+      - networkx
+      - numpy
+      - openai
+      - pandas==2.3.3
+      - plotly
+      - regex==2025.11.3
+      - scikit-learn==1.7.2
+      - seaborn
+      - sentence-transformers==5.1.2
+      - streamlit
+      - tqdm==4.67.1
+      - umap-learn
+      - vaderSentiment
