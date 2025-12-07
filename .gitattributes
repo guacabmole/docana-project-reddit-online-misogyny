@@ -1,0 +1,2 @@
+# Ignore HTML outputs for language statistics
+dashboard/data/*.html linguist-generated=true
