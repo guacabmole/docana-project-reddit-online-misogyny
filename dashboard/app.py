@@ -163,7 +163,7 @@ elif view_choice == "Network analysis":
         "of most active authors according to topics"
     )
 
-    image_path = "dashboard/data/network_output.png"
+    image_path = "dashboard/network_output.png"
 
     try:
         st.image(
