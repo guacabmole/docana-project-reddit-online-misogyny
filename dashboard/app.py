@@ -4,7 +4,6 @@ import plotly.express as px
 import streamlit.components.v1 as components
 import zipfile
 
-
 st.set_page_config(layout = "wide")
 st.markdown("""
     <style>
@@ -29,7 +28,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     zip_path = "dashboard/data/data_topics_sentiment.zip"      
-    csv_name = "dashboard/data_topics_sentiment.csv"         
+    csv_name = "data_topics_sentiment.csv"         
 
     with zipfile.ZipFile(zip_path, "r") as z:
         with z.open(csv_name) as f:
@@ -39,7 +38,7 @@ def load_data():
 
 df = load_data()
 
-st.title("Reddit Misogyny Topic Explorer")
+st.title("Reddit Online Misogyny - Topic Explorer")
 st.caption("Based on BERTopic + VADER sentiment")
 
 # Segmented control for view choice (in main area)
@@ -78,77 +77,65 @@ if view_choice == "Sentiment analysis":
     # Sentiment ratios per topic (stacked bar, sorted by negative ratio)
     st.subheader("Sentiment ratios per topic (VADER)")
 
-    # We expect a categorical column with labels like 'positive', 'negative', 'neutral'
-    if "vader_sentiment" in filtered_df.columns and len(filtered_df) > 0:
-        # Count documents per (Topic, vader_sentiment)
-        sentiment_counts = (
-            filtered_df
-            .groupby(["Topic", "vader_sentiment"])
-            .size()
-            .unstack(fill_value=0)
+
+    sentiment_counts = (
+        filtered_df
+        .groupby(["Topic", "vader_sentiment"])
+        .size()
+        .unstack(fill_value=0)
+    )
+
+    for col in ["positive", "negative", "neutral"]:
+        if col not in sentiment_counts.columns:
+            sentiment_counts[col] = 0
+
+    sentiment_ratios = sentiment_counts.div(
+        sentiment_counts.sum(axis=1), axis=0
+    ).fillna(0)
+
+    sentiment_ratios = sentiment_ratios.sort_values(
+        by="negative",
+        ascending=False
+    )
+
+    sentiment_ratios_pct = (sentiment_ratios * 100).round(2)
+
+    # Long-format for Plotly
+    ratios_long = (
+        sentiment_ratios_pct
+        .reset_index()
+        .melt(
+            id_vars="Topic",
+            value_vars=["positive", "negative", "neutral"],
+            var_name="Sentiment",
+            value_name="Percentage"
         )
+    )
 
-        # Ensure all three sentiment columns exist, even if 0 in this filtered view
-        for col in ["positive", "negative", "neutral"]:
-            if col not in sentiment_counts.columns:
-                sentiment_counts[col] = 0
+    # Stacked bar chart
+    fig_ratios = px.bar(
+        ratios_long,
+        x="Topic",
+        y="Percentage",
+        color="Sentiment",
+        title="Normalized VADER sentiment ratios per topic (sorted by negative ratio)",
+        barmode="stack",
+        category_orders={"Topic": sentiment_ratios_pct.index.tolist()},
+        color_discrete_map={
+            "positive": "green",
+            "negative": "red",
+            "neutral": "blue",
+        },
+        text="Percentage"
+    )
 
-        # Convert counts to ratios per topic
-        sentiment_ratios = sentiment_counts.div(
-            sentiment_counts.sum(axis=1), axis=0
-        ).fillna(0)
+    fig_ratios.update_layout(
+        xaxis_tickangle=-45,
+        legend_title_text="Sentiment"
+    )
+    fig_ratios.update_traces(texttemplate="%{text:.1f}%", textposition="inside")
 
-        # Sort topics by NEGATIVE ratio (descending)
-        sentiment_ratios = sentiment_ratios.sort_values(
-            by="negative",
-            ascending=False
-        )
-
-        # Convert to percentages and round
-        sentiment_ratios_pct = (sentiment_ratios * 100).round(2)
-
-        # Long-format for Plotly
-        ratios_long = (
-            sentiment_ratios_pct
-            .reset_index()
-            .melt(
-                id_vars="Topic",
-                value_vars=["positive", "negative", "neutral"],
-                var_name="Sentiment",
-                value_name="Percentage"
-            )
-        )
-
-        # Stacked bar chart
-        fig_ratios = px.bar(
-            ratios_long,
-            x="Topic",
-            y="Percentage",
-            color="Sentiment",
-            title="Normalized VADER sentiment ratios per topic (sorted by negative ratio)",
-            barmode="stack",
-            category_orders={"Topic": sentiment_ratios_pct.index.tolist()},
-            color_discrete_map={
-                "positive": "green",
-                "negative": "red",
-                "neutral": "blue",
-            },
-            text="Percentage"
-        )
-
-        fig_ratios.update_layout(
-            xaxis_tickangle=-45,
-            legend_title_text="Sentiment"
-        )
-        fig_ratios.update_traces(texttemplate="%{text:.1f}%", textposition="inside")
-
-        st.plotly_chart(fig_ratios, use_container_width=True)
-
-    else:
-        st.info(
-            "No categorical VADER sentiment information available "
-            "for this filtered selection."
-        )
+    st.plotly_chart(fig_ratios, use_container_width=True)
 
     # Example posts 
     st.subheader("Example posts")
@@ -173,10 +160,10 @@ elif view_choice == "Network analysis":
 
     st.markdown(
         "This view shows a precomputed network visualization "
-        "of topics/users/subreddits related to online misogyny."
+        "of most active authors according to topics"
     )
 
-    image_path = "dashboard/data/output.png"
+    image_path = "dashboard/data/network_output.png"
 
     try:
         st.image(

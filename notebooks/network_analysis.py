@@ -4,14 +4,17 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.lines import Line2D
+import zipfile
 
 # LOADING combined DATASET of topic and sentiment analysis results on chosen subreddits
-df = pd.read_csv("../data/processed/data_topics_sentiment.csv")
+with zipfile.ZipFile("../data/processed/data_topics_sentiment.zip", "r") as z:
+        with z.open("data_topics_sentiment.csv") as f:
+            df = pd.read_csv(f)
 
 # filtering empty or nan or uninformative content
 df = df.dropna()
 df = df[~df['vader_sentiment'].str.contains(r'\d+', regex=True)]
-df = df[df['Topic'] != 'Outlier Topic']
+df = df[df['Topic'] != 'Outlier Topic'] # fitering for Outliers
 df_filtered = df[df['author'] != '[deleted]']
 
 # filtering out duplicates (same content by same user)
@@ -126,7 +129,7 @@ nx.draw_networkx_edges(
 )
 
 ax.set_title(
-    'Sample Network of Authors according to Topics \n(with VADER Sentiment Analyser)',
+    'Network of Active Authors according to Topics \nand Sentiment Analysis',
     fontsize=20
 )
 ax.axis('off')
@@ -182,6 +185,6 @@ ax.legend(
 )
 
 plt.tight_layout()
-plt.savefig('../outputs/AuthorNetworkGraph.jpg') #saving legend
-plt.savefig('../dashboard/AuthorNetworkGraph.jpg') #saving legend
+plt.savefig('../outputs/network_output.png') 
+plt.savefig('../dashboard/network_output.png') 
 plt.show()

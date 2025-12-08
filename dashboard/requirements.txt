@@ -1,8 +1,8 @@
 plotly
-bertopic
-sentence-transformers
+bertopic==0.17.4
+sentence-transformers==5.1.2
 umap-learn
-hdbscan
+hdbscan==0.8.40
 vaderSentiment
 streamlit
-pandas
+pandas==2.3.3
